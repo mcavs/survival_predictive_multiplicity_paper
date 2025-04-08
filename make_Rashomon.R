@@ -9,13 +9,20 @@ make_Rashomon <- function(task, split, hyps){
                       "nodedepth", "splitrule", "nsplit")
   
   model <- NULL
-  for(i in 1:2000){
-    model[[i]] <- train_model(task, split, hyp = grid[i,])  
+  cind  <- NULL 
+  ibri  <- NULL
+  resp  <- NULL
+  cran  <- NULL
+  for(i in 1:dim(grid)[1]){
+    model      <- train_model(task, split, hyp = grid[i,]) 
+    pr         <- model$predict(task, split$test)
+    cind[i]    <- pr$score(msr("surv.cindex"))
+    dcal[i]    <- pr$score(msr("surv.dcalib"))
+    ibri[i]    <- pr$score(msr("surv.graf"))
+    resp[[i]]  <- pr$response
+    cran[[i]]  <- pr$crank
     print(i)
   }
-  
-  
-  
 }
 
 
