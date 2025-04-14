@@ -79,29 +79,32 @@ heatmap_data <- rbind(
   data.frame(data = "FD003", metric = "obscurity", obs_FD003$data),
   data.frame(data = "FD004", metric = "obscurity", obs_FD004$data))
 
-ggplot(heatmap_data, aes(x = rash_par, 
-                         y = thres, 
-                         fill = pm_values)) +
+ggplot(heatmap_data |> 
+         mutate(across(everything(), ~ifelse(.x == -Inf, 0, .x))) |> 
+         mutate(across(everything(), ~replace_na(.x, 0))) |>
+         filter(rash_par <= 0.50), 
+       aes(x    = rash_par, 
+           y    = thres, 
+           fill = pm_values)) +
   geom_tile() +
   scale_fill_gradient(low    = "white", 
                       high   = "red",
                       breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1),
-                      labels = c("0", "0.2", "0.4", "0.6", 
-                                 "0.8", "1")) +
-  labs(x     = "Rashomon Parameter", 
-       y     = "Threshold") +
+                      labels = c("0", "0.2", "0.4", "0.6", "0.8", "1")) +
+  labs(x     = expression("Rashomon Parameter"~(epsilon)), 
+       y     = expression("Threshold"~(delta))) +
   theme_bw() +
-  theme(text             = element_text(size = 15),
+  theme(text             = element_text(size   = 15),
         legend.position  = "bottom",
         legend.title     = element_blank(),
         panel.grid.major = element_blank(),  
         panel.grid.minor = element_blank(),
-        legend.key.width = unit(2, "cm")) + 
-  #scale_x_continuous(breaks = seq(0.1, 1, by = 0.1)) + 
-  #scale_y_continuous(breaks = seq(0, 0.5, by = 0.1)) + 
+        legend.key.width = unit(2, "cm"),
+        strip.text.x     = element_text(face = "italic"), 
+        strip.text.y     = element_text(family = "Courier")) + 
   scale_x_continuous(
-    breaks = seq(0, 1, by = 0.25), 
-    labels = c("0", "0.25", "0.5", "0.75", "1")) + 
+    breaks = c(0.01, 0.1, 0.2, 0.3, 0.4, 0.5), 
+    labels = c("0.01", "0.1", "0.2", "0.3", "0.4", "0.5")) + 
   scale_y_continuous(
     breaks = seq(0, 0.5, by = 0.1), 
     labels = c("0", "0.1", "0.2", "0.3", "0.4", "0.5")) +
